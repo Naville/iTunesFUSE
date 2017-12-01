@@ -1,0 +1,35 @@
+cmake_minimum_required(VERSION 3.0)
+project(iTunesFUSE)
+#add_library(iTunesFuse MODULE iTunesFuse.mm NSError+POSIX.m)
+OPTION(DEFINE_MACRO "Option description" ON) # Enabled by default
+add_executable(iTunesFuse NSError+POSIX.m iTunesFuse.mm)
+
+
+
+
+if(NOT DEFINED MOUNT_POINT)
+message(FATAL_ERROR "MOUNT_POINT Not Specified" ${MOUNT_POINT})
+endif(NOT DEFINED MOUNT_POINT)
+if(NOT DEFINED StoragePath)
+message(FATAL_ERROR "StoragePath Not Specified" ${StoragePath})
+endif(NOT DEFINED StoragePath)
+add_definitions(-DMOUNT_POINT=${MOUNT_POINT})
+add_definitions(-DStoragePath=${StoragePath})
+message(STATUS "Mount Point Set To:" ${MOUNT_POINT})
+message(STATUS "Storage Path Set To:" ${StoragePath})
+set(CMAKE_C_FLAGS "-F/Library/Frameworks")
+find_library(AVCODEC NAMES avcodec REQUIRED)
+find_library(AVFORMAT NAMES avformat REQUIRED)
+find_library(OSXFUSE REQUIRED)
+message(STATUS "AVFORMAT Library Location: ${AVFORMAT}")
+message(STATUS "AVCODEC Library Location: ${AVCODEC}")
+message(STATUS "OSXFUSE Framework Install Location: ${OSXFUSE_DIR}")
+include_directories(${AVCODEC_INCLUDE_DIR} ${AVFORMAT_INCLUDE_DIR} ${OSXFUSE_INCLUDE_DIR})
+target_link_libraries(iTunesFuse "-Wl,-F/Library/Frameworks -framework AppKit -framework Foundation -framework OSXFUSE" ${AVCODEC} ${AVFORMAT})
+set_property (TARGET iTunesFuse APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
+#set_target_properties(iTunesFuse PROPERTIES BUNDLE TRUE MACOSX_BUNDLE_GUI_IDENTIFIER "com.naville.itunesfuse" MACOSX_BUNDLE_BUNDLE_NAME "iTunesFUSE")
+#IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        #SET(CMAKE_INSTALL_PREFIX "~/Library/iTunes/iTunes Plug-ins" CACHE PATH "" FORCE)
+#ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+
+#install(TARGETS iTunesFuse DESTINATION "~/Library/iTunes/iTunes Plug-ins")
